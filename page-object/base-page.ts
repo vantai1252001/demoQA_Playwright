@@ -4,15 +4,19 @@ import { Element } from "../core/element/element";
 export class BasePage {
     userNameLabel: Element;
     profileMenu: Element;
-    alertEvent: any; // Assuming the type is not known, using 'any'
-
+    bookStoreLink: Element;
+    alertEvent: any;
     constructor() {
         this.userNameLabel = new Element("id=userName-value");
         this.profileMenu = new Element("xpath=//span[ .= 'Profile']");
+        this.bookStoreLink = new Element("heading", 0, { name: 'Book Store Application' });
         this.alertEvent = undefined;
     }
     async goToProfilePage(): Promise<void> {
         await this.profileMenu.click();
+    }
+    async goToBookStorePage(): Promise<void> {
+        await this.bookStoreLink.click();
     }
     async registerAlert(timeout: number = 5000): Promise<void> {
         await BrowserUtils.registerAlert(timeout);

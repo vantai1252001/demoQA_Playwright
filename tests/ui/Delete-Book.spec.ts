@@ -1,46 +1,49 @@
 
 import { AccountHelper } from '../../helper/api/account-helper';
-import test, { APIRequestContext, expect } from '@playwright/test';
-import { userData } from '../../test-data/user-data';
-import { bookData } from '../../test-data/book-data';
-import { BookHelper } from '../../helper/api/book-helper';
+import test, { expect } from '@playwright/test';
 import { LoginPage } from '../../page-object/login-page';
 import { ProfilePage } from '../../page-object/profile-page';
 import { BrowserManagement } from '../../core/browser/browser-management';
 import { BookStorePage } from '../../page-object/book-store-page';
 import { BookUtils } from '../../helper/api/book-utils';
+import { baseUser } from '../../config/user-env';
+import { JsonHelper } from '../../util/json-helper';
+
 let token: string;
-const bookTitleDelete = bookData[0].title;
-test.beforeEach(async ({ browser, context, page, request }: any) => {
+const randomBook = JsonHelper.getRandomBooks(1);
+const bookTitleToDelete = randomBook[0].title;
+test.beforeEach(async ({ browser, context, page, request }) => {
+  await BrowserManagement.initializeBrowser(browser, context, page, request);
 
-    await BrowserManagement.initializeBrowser(browser, context, page, request);
-    // Generate token
-    const tokenResponse = await AccountHelper.generateToken(
-        userData.user1.userName,
-        userData.user1.password,
-        BrowserManagement.request
-    );
+  const tokenResponse = await AccountHelper.generateToken(
+    baseUser.userName,
+    baseUser.password,
+    BrowserManagement.request
+  );
+  const jsonTokenResponse: { token: string } = await tokenResponse.json();
+  token = jsonTokenResponse.token;
 
-    const jsonTokenResponse: { token: string } = await tokenResponse.json();
-    token = jsonTokenResponse["token"];
-
-    await BookUtils.ensureBookExistsForUser(token, userData.user1.userID, bookTitleDelete, BrowserManagement.request)
-
+  // Ensure the book exists before test runs
+  await BookUtils.ensureBookExistsForUser(token, baseUser.userId, bookTitleToDelete, BrowserManagement.request);
 });
 
-test(`Verify that user can delete book with title ${bookTitleDelete} successfully`, async ( {baseURL} ) => {
+test(`Verify that user can delete a random book`, async ({ baseURL }) => {
+  await BrowserManagement.page.goto(`${baseURL}`);
 
-    await BrowserManagement.page.goto(`${baseURL}/books`);
-    const loginPage = new LoginPage();
-    const profilePage = new ProfilePage();
-    const bookStorePage = new BookStorePage();
+  const loginPage = new LoginPage();
+  const profilePage = new ProfilePage();
+  const bookStorePage = new BookStorePage();
 
-    await bookStorePage.goToLoginPage();
-    await loginPage.login(userData.user1.userName, userData.user1.password);
-    await bookStorePage.waitForUserNameDisplayed();
-    await bookStorePage.goToProfilePage();
-    await profilePage.searchBookByName(bookData[0].title);
-    await profilePage.deleteBookByName(bookData[0].title);
-    const doesBookExist1 = await profilePage.doesBookExist(bookData[0].title);
-    expect(doesBookExist1).toBe(false);
+  await bookStorePage.goToBookStorePage();
+  await bookStorePage.goToLoginPage();
+  await loginPage.login(baseUser.userName, baseUser.password);
+  await bookStorePage.waitForUserNameDisplayed();
+  await bookStorePage.goToProfilePage();
+
+  // Use the same randomBook object you got in beforeEach — consider sharing via a global or context
+  await profilePage.searchBookByName(bookTitleToDelete);
+  await profilePage.deleteBookByName(bookTitleToDelete);
+  const doesBookExist = await profilePage.doesBookExist(bookTitleToDelete);
+  expect(doesBookExist).toBe(false);
+  console.log(`✅ Successfully deleted book: ${bookTitleToDelete}`);
 });

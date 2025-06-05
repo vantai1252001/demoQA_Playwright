@@ -15,4 +15,20 @@ export class AccountHelper {
     if (!reqContext && !BrowserManagement.request) await requestContext.dispose();
     return response;
   }
+
+  static async getListBooksByUserId(
+    token: string,
+    userID: string,
+    reqContext?: APIRequestContext
+  ): Promise<APIResponse> {
+    let requestContext = reqContext ?? BrowserManagement.request ?? await request.newContext();
+    const response = await requestContext.get(`${baseUrl}Account/v1/User/${userID}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!reqContext && !BrowserManagement.request) await requestContext.dispose();
+    return response;
+  }
 }

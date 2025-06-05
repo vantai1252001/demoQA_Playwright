@@ -1,5 +1,4 @@
-
-import { Dialog } from 'playwright';
+import { Dialog } from '@playwright/test';
 import { BrowserManagement } from './browser-management';
 
 export class BrowserUtils {

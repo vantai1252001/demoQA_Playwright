@@ -29,7 +29,7 @@ export default defineConfig({
   use: {
     headless: true,
     viewport: { width: 1280, height: 720 },
-    baseURL: 'https://demoqa.com/',
+    baseURL: 'https://demoqa.com',
   },
 
   /* Configure projects for major browsers */

@@ -77,12 +77,12 @@ export class Element {
         return await element.inputValue() || '';
     }
     async getNumberOfElements(): Promise<number> {
-        const element = await this.getElement().count();
-
-        if (element > 0) {
-            await this.locator.first().waitFor({ state: 'visible' });
+        const element = await this.getElement();
+        const count = await element.count();
+        if (count > 0) {
+            await element.first().waitFor({ state: 'visible' });
         }
-        return element;
+        return count;
     }
     async pressKey(key: string) {
         const element = this.getElement();

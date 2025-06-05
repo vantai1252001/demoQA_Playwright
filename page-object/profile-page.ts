@@ -3,6 +3,7 @@ import { Element } from "../core/element/element";
 
 export class ProfilePage extends BasePage {
     okButton: Element;
+    bookName: Element;
 
     constructor() {
         super();
@@ -12,6 +13,10 @@ export class ProfilePage extends BasePage {
         const bookLinkLocator = `xpath=//a[ .= '${bookName}']`;
         const numberOfElement = await new Element(bookLinkLocator).getNumberOfElements();
         return numberOfElement > 0;
+    }
+    async searchBookByName(bookName: string): Promise<void> {
+        const searchBoxLocator = `xpath=//input[@placeholder="Type to search"]`;
+        await new Element(searchBoxLocator).fillText(`${bookName}`);
     }
     async deleteBookByName(bookName: string): Promise<void> {
         const bookDeleteButton = `//span[ .= '${bookName}']/ancestor :: div[@role='row']//span[@title='Delete']`;

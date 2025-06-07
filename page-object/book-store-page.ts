@@ -1,27 +1,42 @@
+import { expect, Locator, Page } from "@playwright/test";
 import { BasePage } from "./base-page";
-import { Element } from "../core/element/element";
 export class BookStorePage extends BasePage {
-    okButton: Element;
-    loginButton: Element;
-    constructor() {
-        super();
-        this.okButton = new Element("id=closeSmallModal-ok");
-        this.loginButton = new Element("button", 0, { name: 'Login' });
+    readonly okButton: Locator;
+    readonly loginButton: Locator;
+    readonly bookTitleRows: Locator;
+
+    constructor(page: Page) {
+        super(page);
+        this.okButton = page.locator("#closeSmallModal-ok");
+        this.loginButton = page.getByRole("button", { name: "Login" });
+        this.bookTitleRows = page.locator(".rt-tbody .rt-tr-group a");
     }
 
-    async goToLoginPage() {
+    async goToLoginPage(): Promise<void> {
         await this.loginButton.click();
     }
+
     async doesBookExist(bookName: string): Promise<boolean> {
-        const bookLinkLocator = `xpath=//a[ .= '${bookName}']`;
-        const numberOfElement = await new Element(bookLinkLocator).getNumberOfElements();
-        return numberOfElement > 0;
+        const bookLink = this.page.locator(`xpath=//a[ .= '${bookName}']`);
+        return await bookLink.count() > 0;
     }
+
     async deleteBookByName(bookName: string): Promise<void> {
-        const bookDeleteButton = `//span[ .= '${bookName}']/ancestor :: div[@role='row']//span[@title='Delete']`;
-        await new Element(bookDeleteButton).click();
+        const deleteButton = this.page.locator(`//span[ .= '${bookName}']/ancestor::div[@role='row']//span[@title='Delete']`);
+        await deleteButton.click();
         await this.registerAlert();
         await this.okButton.click();
         await this.handleAlert();
+    }
+
+    async expectAllBookTitlesContain(keyword: string, minExpectedResults = 1): Promise<void> {
+        const count = await this.bookTitleRows.count();
+        expect(count).toBeGreaterThanOrEqual(minExpectedResults);
+
+        for (let i = 0; i < count; i++) {
+            const title = await this.bookTitleRows.nth(i).textContent();
+            expect(title?.toLowerCase()).toContain(keyword.toLowerCase());
+        }
+        console.log(`✅ Found ${count} books containing "${keyword}" in the title on Book Store page.`);
     }
 }

@@ -2,19 +2,17 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export class JsonHelper {
-  static booksFilePath = path.resolve(__dirname, '../test-data/books.json');
-  static userDataFilePatch = path.resolve(__dirname, '../test-data/userData.json')
-
-  static readDataJson(): { books: any[] } {
+  static readDataJson(fileName: string): any {
+    const filePath = path.resolve(__dirname, '../test-data', fileName);
     try {
-      const rawData = fs.readFileSync(this.booksFilePath, 'utf-8');
+      const rawData = fs.readFileSync(filePath, 'utf-8');
       return JSON.parse(rawData);
     } catch (error) {
-      console.error('❌ Error reading books.json:', error);
-      return { books: [] };
+      console.error(`❌ Error reading ${fileName}:`, error);
+      return {};
     }
   }
-  static writeDataToJson(fileName: string , data: any): void {
+  static writeDataToJson(fileName: string, data: any): void {
     const filePath = path.resolve(__dirname, '../test-data', fileName);
     try {
       fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
@@ -23,10 +21,10 @@ export class JsonHelper {
       console.error(`❌ Error writing ${fileName}`, error);
     }
   }
-
-  static getRandomBooks(count: number): any[] {
-    const { books } = this.readBooksJson();
-    const shuffled = books.sort(() => 0.5 - Math.random());
+  static getRandomItem(fileName: string, key: string, count: number): any[] {
+    const json = this.readDataJson(fileName);
+    const items = json[key] || [];
+    const shuffled = items.sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
   }
 }

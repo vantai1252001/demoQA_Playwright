@@ -1,15 +1,19 @@
+import { expect, Locator, Page } from "@playwright/test";
 import { BrowserUtils } from "../core/browser/browser-utils";
-import { Element } from "../core/element/element";
 
 export class BasePage {
-    userNameLabel: Element;
-    profileMenu: Element;
-    bookStoreLink: Element;
+    readonly page: Page;
+    readonly profileMenu: Locator;
+    readonly bookStoreLink: Locator;
+    readonly searchBox: Locator;
+
+
     alertEvent: any;
-    constructor() {
-        this.userNameLabel = new Element("id=userName-value");
-        this.profileMenu = new Element("xpath=//span[ .= 'Profile']");
-        this.bookStoreLink = new Element("heading", 0, { name: 'Book Store Application' });
+    constructor(page: Page) {
+        this.page = page;
+        this.profileMenu = page.locator("xpath=//span[ .= 'Profile']");
+        this.bookStoreLink = page.getByRole('heading', { name: 'Book Store Application' })
+        this.searchBox = page.locator('xpath=//input[@placeholder="Type to search"]');
         this.alertEvent = undefined;
     }
     async goToProfilePage(): Promise<void> {
@@ -24,8 +28,7 @@ export class BasePage {
     async handleAlert(): Promise<string> {
         return await BrowserUtils.handleAlert();
     }
-    async waitForUserNameDisplayed() {
-
-        await this.userNameLabel.waitForElementToBeVisible();
+    async searchBookByName(bookName: string): Promise<void> {
+        await this.searchBox.fill(bookName);
     }
 }

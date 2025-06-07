@@ -1,29 +1,20 @@
 import { request } from '@playwright/test';
 import { AccountHelper } from './helper/api/account-helper';
-import { BookHelper } from './helper/api/book-helper';
 import { baseUser } from './config/user-env';
-import { config as loadDotenv } from 'dotenv';
-// re‐read .env so process.env.BASE_USER_ID is up‐to‐date
-loadDotenv();
+import { JsonHelper } from './util/json-helper';
 
 async function globalTeardown() {
-     const actualUserId = process.env.BASE_USER_ID!;
-    console.log("Clean up data")
-
+    const userID = JsonHelper.readDataJson("userData.json").userID;
+    console.log("🧹 Cleaning up data...");
     const reqContext = await request.newContext();
-    const tokenResponse = await AccountHelper.generateToken(
+    const token = await AccountHelper.generateToken(
         baseUser.userName,
         baseUser.password,
         reqContext
     );
-    const { token } = await tokenResponse.json();
-    console.log("Newly ID:", actualUserId)
-    await BookHelper.deleteAllBooks(token, actualUserId, reqContext);
-    console.log(`✅ Successfully deleted all books of the ${baseUser.userName} user.`)
-    await AccountHelper.deleteUser(token, actualUserId, reqContext);
-    console.log(`✅ Successfully removed ${baseUser.userName} user from Book Store.`)
-
-    // 7) Clean up
+    const response = await AccountHelper.deleteUser(token, userID, reqContext);
+    const statusResponse = response.status();
+    console.log(`🔍 Status code: ${statusResponse}`, typeof (statusResponse));
     await reqContext.dispose();
 }
 

@@ -27,7 +27,7 @@ export default defineConfig({
   globalSetup: require.resolve('./global-setup'),
   globalTeardown: require.resolve('./global-teardown'),
   use: {
-    headless: true,
+    headless: false,
     viewport: { width: 2560, height: 1440 },
     baseURL: 'https://demoqa.com',
   },

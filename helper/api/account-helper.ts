@@ -7,13 +7,14 @@ export class AccountHelper {
     userName: string,
     password: string,
     reqContext?: APIRequestContext
-  ): Promise<APIResponse> {
+  ): Promise<string> {
     let requestContext = reqContext ?? BrowserManagement.request ?? await request.newContext();
     const response = await requestContext.post(`${baseUrl}Account/v1/GenerateToken`, {
       data: { userName, password },
     });
+    const { token } = await response.json();
     if (!reqContext && !BrowserManagement.request) await requestContext.dispose();
-    return response;
+    return token;
   }
 
   static async getListBooksByUserId(

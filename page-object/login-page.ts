@@ -1,25 +1,24 @@
+import { expect, Locator, Page } from "@playwright/test";
 import { BasePage } from "./base-page";
-import { Element } from "../core/element/element";
-import { expect } from "@playwright/test";
-
 export class LoginPage extends BasePage {
-    loginButton: Element;
-    userNameTextBox: Element;
-    userNameLabel: Element;
-    passwordTextBox: Element;
-  
-    constructor() {
-        super();
-        this.loginButton = new Element("#login");
-        this.userNameTextBox = new Element("#userName");
-        this.passwordTextBox = new Element("#password");
-        this.userNameLabel = new Element("#userName-value");
+    readonly loginButton: Locator;
+    readonly userNameTextBox: Locator;
+    readonly passwordTextBox: Locator;
+    readonly userNameLabel: Locator;
+
+    constructor(page: Page) {
+        super(page);
+        this.loginButton = page.locator("#login");
+        this.userNameTextBox = page.locator("#userName");
+        this.passwordTextBox = page.locator("#password");
+        this.userNameLabel = page.locator('#userName-value');
     }
 
-    async login(userName: string, password: string) {
-        await this.userNameTextBox.fillText(userName);
-        await this.passwordTextBox.fillText(password);
+    async login(userName: string, password: string): Promise<void> {
+        await this.userNameTextBox.fill(userName);
+        await this.passwordTextBox.fill(password);
         await this.loginButton.click();
-        await this.waitForUserNameDisplayed()
+        await expect(this.userNameLabel).toBeVisible();
+        await expect(this.userNameLabel).toContainText(userName);
     }
 }

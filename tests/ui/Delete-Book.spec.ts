@@ -8,7 +8,9 @@ import { BookStorePage } from '../../page-object/book-store-page';
 import { BookUtils } from '../../helper/api/book-utils';
 import { baseUser } from '../../config/user-env';
 import { JsonHelper } from '../../util/json-helper';
+import { config as loadDotenv } from 'dotenv';
 
+loadDotenv(); 
 let token: string;
 const randomBook = JsonHelper.getRandomBooks(1);
 const bookTitleToDelete = randomBook[0].title;
@@ -22,8 +24,8 @@ test.beforeEach(async ({ browser, context, page, request }) => {
   );
   const jsonTokenResponse: { token: string } = await tokenResponse.json();
   token = jsonTokenResponse.token;
-
-  // Ensure the book exists before test runs
+  console.log("userId in test file", baseUser.userId);
+  // Ensure the book exists 
   await BookUtils.ensureBookExistsForUser(token, baseUser.userId, bookTitleToDelete, BrowserManagement.request);
 });
 

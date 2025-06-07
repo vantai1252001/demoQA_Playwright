@@ -31,4 +31,35 @@ export class AccountHelper {
     if (!reqContext && !BrowserManagement.request) await requestContext.dispose();
     return response;
   }
+
+  static async createUser(
+    userName: string,
+    password: string,
+    reqContext?: APIRequestContext
+  ): Promise<APIResponse> {
+    let requestContext = reqContext ?? BrowserManagement.request ?? await request.newContext();
+    const response = await requestContext.post(`${baseUrl}Account/v1/User`, {
+      data: {
+        userName: userName,
+        password: password,
+      },
+    });
+    if (!reqContext && !BrowserManagement.request) await requestContext.dispose();
+    return response;
+  }
+  static async deleteUser(
+    token: string,
+    userId: string,
+    reqContext?: APIRequestContext
+  ): Promise<APIResponse> {
+    let requestContext = reqContext ?? BrowserManagement.request ?? await request.newContext();
+    const response = await requestContext.delete(`${baseUrl}Account/v1/User/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!reqContext && !BrowserManagement.request) await requestContext.dispose();
+    return response;
+  }
 }

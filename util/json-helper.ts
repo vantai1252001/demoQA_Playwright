@@ -3,8 +3,9 @@ import * as path from 'path';
 
 export class JsonHelper {
   static booksFilePath = path.resolve(__dirname, '../test-data/books.json');
+  static userDataFilePatch = path.resolve(__dirname, '../test-data/userData.json')
 
-  static readBooksJson(): { books: any[] } {
+  static readDataJson(): { books: any[] } {
     try {
       const rawData = fs.readFileSync(this.booksFilePath, 'utf-8');
       return JSON.parse(rawData);
@@ -13,13 +14,13 @@ export class JsonHelper {
       return { books: [] };
     }
   }
-
-  static writeBooksJson(data: any): void {
+  static writeDataToJson(fileName: string , data: any): void {
+    const filePath = path.resolve(__dirname, '../test-data', fileName);
     try {
-      fs.writeFileSync(this.booksFilePath, JSON.stringify(data, null, 2), 'utf-8');
-      console.log('✅ Successfully wrote to books.json');
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+      console.log(`✅ Successfully wrote to ${fileName}`);
     } catch (error) {
-      console.error('❌ Error writing books.json:', error);
+      console.error(`❌ Error writing ${fileName}`, error);
     }
   }
 

@@ -14,7 +14,7 @@ async function globalTeardown() {
     );
     const response = await AccountHelper.deleteUser(token, userID, reqContext);
     const statusResponse = response.status();
-    console.log(`🔍 Status code: ${statusResponse}`, typeof (statusResponse));
+    console.log(`🔍 Status code: ${statusResponse}`);
     await reqContext.dispose();
 }
 
